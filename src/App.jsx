@@ -7,18 +7,18 @@ import ItemModal from "./components/ItemModal";
 import Preloader from "./components/Preloader";
 import ScrollToTop from "./components/ScrollToTop";
 
-// Modal açıldıqda arxa fonun animasiyası
+// DÜZƏLİŞ BURADADIR (PERFORMANS)
 const mainContentVariants = {
   open: {
     scale: 0.95,
     opacity: 0.8,
-    filter: "blur(5px)",
+    // filter: "blur(5px)", // PERFORMANSI ÖLDÜRƏN SƏTİR SİLİNDİ
     transition: { type: "spring", stiffness: 120, damping: 30 },
   },
   closed: {
     scale: 1,
     opacity: 1,
-    filter: "blur(0px)",
+    // filter: "blur(0px)", // PERFORMANSI ÖLDÜRƏN SƏTİR SİLİNDİ
     transition: { type: "spring", stiffness: 120, damping: 30 },
   },
 };
@@ -46,15 +46,15 @@ function App() {
   const handleItemSelected = (item) => setSelectedItem(item);
 
   return (
-    // 1. ƏSAS KONTEYNER (Bütün pəncərəni tutur)
+    // 1. ƏSAS KONTEYNER
     <div className="App relative bg-premium-black overflow-hidden h-screen">
       
-      {/* 2. Pre-loader (Ən yuxarıda) */}
+      {/* 2. Pre-loader */}
       <AnimatePresence>
         {isLoading && <Preloader />} 
       </AnimatePresence>
 
-      {/* 3. ƏSAS SAYT MƏZMUNU (Preloader-dən sonra gəlir) */}
+      {/* 3. ƏSAS SAYT MƏZMUNU (Kiçilən hissə) */}
       <AnimatePresence>
         {!isLoading && (
           <motion.div
@@ -64,7 +64,6 @@ function App() {
             animate="visible"
             className="h-full"
           >
-            {/* 3.1. SAYTIN MƏZMUNU (Kiçilən hissə) */}
             <motion.div
               variants={mainContentVariants}
               animate={selectedItem ? "open" : "closed"}
@@ -84,9 +83,7 @@ function App() {
         )}
       </AnimatePresence>
 
-      {/* 4. MODAL (ƏN YUXARI SƏVİYYƏDƏ) */}
-      {/* DÜZƏLİŞ BURADADIR: Modal artıq 'main-app' div-nin içində DEYİL. */}
-      {/* O, 'div.App'-in birbaşa övladıdır. */}
+      {/* 4. MODAL (Ən yuxarı səviyyədə) */}
       <AnimatePresence>
         {selectedItem && (
           <ItemModal 
@@ -96,8 +93,7 @@ function App() {
         )}
       </AnimatePresence>
 
-      {/* 5. SCROLL DÜYMƏSİ (ƏN YUXARI SƏVİYYƏDƏ) */}
-      {/* Bu da 'div.App'-in birbaşa övladıdır. */}
+      {/* 5. SCROLL DÜYMƏSİ (Ən yuxarı səviyyədə) */}
       {!isLoading && <ScrollToTop scrollRef={mainContentRef} />}
 
     </div>
