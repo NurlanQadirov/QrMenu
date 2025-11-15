@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    /* Əsas fon və mətn rəngləri */
+    @apply bg-premium-black text-off-white antialiased;
+  }
+}
+
+/* Qızılı gradientlər üçün köməkçi siniflər */
+@layer utilities {
+  .gold-gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-gold/80 via-gold to-gold/80;
+  }
+  
+  .gold-gradient-line-h {
+    @apply h-[1px] bg-gradient-to-r from-transparent via-gold to-transparent;
+  }
+  
+  .gold-gradient-line-v {
+    @apply w-[1px] bg-gradient-to-b from-transparent via-gold to-transparent;
+  }
+}
