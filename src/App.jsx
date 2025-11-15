@@ -7,18 +7,16 @@ import ItemModal from "./components/ItemModal";
 import Preloader from "./components/Preloader";
 import ScrollToTop from "./components/ScrollToTop";
 
-// DÜZƏLİŞ BURADADIR (PERFORMANS)
+// Modal açıldıqda arxa fonun animasiyası (performans üçün 'filter' olmadan)
 const mainContentVariants = {
   open: {
     scale: 0.95,
     opacity: 0.8,
-    // filter: "blur(5px)", // PERFORMANSI ÖLDÜRƏN SƏTİR SİLİNDİ
     transition: { type: "spring", stiffness: 120, damping: 30 },
   },
   closed: {
     scale: 1,
     opacity: 1,
-    // filter: "blur(0px)", // PERFORMANSI ÖLDÜRƏN SƏTİR SİLİNDİ
     transition: { type: "spring", stiffness: 120, damping: 30 },
   },
 };
@@ -26,7 +24,8 @@ const mainContentVariants = {
 // Saytın özünün preloader-dən sonra 'fade-in' animasiyası
 const appVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.5 } }
+  // DÜZƏLİŞ: 'delay: 0.2' əlavə etdik ki, preloader çıxmağa başlasın, sonra sayt gəlsin
+  visible: { opacity: 1, transition: { duration: 0.5, delay: 0.2 } }
 };
 
 function App() {
@@ -34,7 +33,7 @@ function App() {
   const mainContentRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Pre-loader-in vəziyyəti
+  // Pre-loader-in vəziyyəti (2.5 saniyə)
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -49,21 +48,26 @@ function App() {
     // 1. ƏSAS KONTEYNER
     <div className="App relative bg-premium-black overflow-hidden h-screen">
       
-      {/* 2. Pre-loader */}
+      {/* 2. ƏSAS ANİMASİYA NƏZARƏTÇİSİ */}
+      {/* DÜZƏLİŞ: İki 'AnimatePresence' əvəzinə TƏK 'AnimatePresence' */}
       <AnimatePresence>
-        {isLoading && <Preloader />} 
-      </AnimatePresence>
+        {isLoading ? (
+          
+          // 2.1. Əgər yüklənirsə, Preloader-i göstər
+          <Preloader key="preloader" />
 
-      {/* 3. ƏSAS SAYT MƏZMUNU (Kiçilən hissə) */}
-      <AnimatePresence>
-        {!isLoading && (
+        ) : (
+          
+          // 2.2. Yüklənmə bitibsə, Əsas Saytı göstər
           <motion.div
             key="main-app"
             variants={appVariants}
             initial="hidden"
             animate="visible"
+            exit={{ opacity: 0 }} // Bu heç vaxt işləməyəcək
             className="h-full"
           >
+            {/* Kiçilən hissə */}
             <motion.div
               variants={mainContentVariants}
               animate={selectedItem ? "open" : "closed"}
@@ -83,7 +87,7 @@ function App() {
         )}
       </AnimatePresence>
 
-      {/* 4. MODAL (Ən yuxarı səviyyədə) */}
+      {/* 3. MODAL (Ən yuxarı səviyyədə) */}
       <AnimatePresence>
         {selectedItem && (
           <ItemModal 
@@ -93,7 +97,7 @@ function App() {
         )}
       </AnimatePresence>
 
-      {/* 5. SCROLL DÜYMƏSİ (Ən yuxarı səviyyədə) */}
+      {/* 4. SCROLL DÜYMƏSİ (Ən yuxarı səviyyədə) */}
       {!isLoading && <ScrollToTop scrollRef={mainContentRef} />}
 
     </div>

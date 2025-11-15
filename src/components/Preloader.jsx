@@ -10,10 +10,11 @@ const logoUrl = 'https://picsum.photos/id/177/100/100';
 const preloaderVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
-  exit: { opacity: 0, transition: { duration: 0.5, delay: 2 } } 
+  // DÜZƏLİŞ: Səhv 'delay: 2' silindi. İndi 0.5 saniyəyə çıxacaq.
+  exit: { opacity: 0, transition: { duration: 0.5 } } 
 };
 
-// 2. Loqo Şəkli (Zərifcə "spring" ilə gəlir)
+// 2. Loqo Şəkli
 const logoVariants = {
   hidden: { opacity: 0, scale: 0.9 },
   visible: { 
@@ -21,24 +22,24 @@ const logoVariants = {
     scale: 1,
     transition: { type: 'spring', stiffness: 100, delay: 0.2 } 
   },
-  exit: { opacity: 0, scale: 0.9 }
+  // DÜZƏLİŞ: Çıxış animasiyası əlavə edildi
+  exit: { opacity: 0, scale: 0.9, transition: { duration: 0.5 } }
 };
 
-// 3. Mətn Konteyneri (DÜZƏLİŞ BURADADIR)
+// 3. Mətn Konteyneri
 const textContainerVariants = {
-  // Dəyişiklik: 'hidden' və 'visible' içindən 'opacity' silindi.
-  // Bu konteynerin özü animasiya etməməlidir, sadəcə uşaqları idarə etməlidir.
-  hidden: { },
+  hidden: { }, // Bu boş qalır, sadəcə uşaqları idarə edir
   visible: { 
     transition: { 
-      staggerChildren: 0.08, // Hər hərf arası fərq
-      delayChildren: 0.5     // Loqodan sonra başla
+      staggerChildren: 0.08, 
+      delayChildren: 0.5
     }
   },
-  exit: { opacity: 0 } // Çıxışda isə bütün hərflərlə birgə yox olsun
+  // DÜZƏLİŞ: Çıxış animasiyası əlavə edildi
+  exit: { opacity: 0, transition: { duration: 0.3 } } // Hərflər daha tez itsin
 };
 
-// 4. Hər Bir Hərf (Aşağıdan yuxarıya)
+// 4. Hər Bir Hərf
 const letterVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
@@ -52,7 +53,7 @@ function Preloader() {
 
   return (
     <motion.div
-      key="preloader"
+      key="preloader" // 'key' mütləqdir
       variants={preloaderVariants}
       initial="hidden"
       animate="visible"

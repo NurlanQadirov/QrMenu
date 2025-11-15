@@ -49,7 +49,6 @@ function ItemModal({ item, onClose }) {
   const isMobile = window.innerWidth < 768;
 
   return (
-    // 'AnimatePresence' artıq App.jsx-də olduğu üçün burada sadəcə Fragment (<>) istifadə edirik
     <>
       {/* 1. Arxa Fon (Bulanıq) */}
       <motion.div
@@ -69,7 +68,6 @@ function ItemModal({ item, onClose }) {
         initial="hidden"
         animate="visible"
         exit="exit"
-        // Desktopdakı hündürlük xətasının həlli ('md:h-[85vh]')
         className="fixed z-50 bottom-0 left-0 right-0 h-[90vh] md:h-[85vh] md:w-[90vw] md:max-w-2xl md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 
                    bg-gray-900/60 backdrop-blur-md border-t-2 md:border-2 border-gold/50 
                    rounded-t-2xl md:rounded-2xl shadow-premium overflow-hidden flex flex-col"
@@ -86,7 +84,12 @@ function ItemModal({ item, onClose }) {
 
         {/* 2.2. Şəkil */}
         <div className="h-60 md:h-80 w-full overflow-hidden">
-          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+          <img 
+            src={item.image} 
+            alt={item.name} 
+            loading="lazy" // <--- PERFORMANS ÜÇÜN DƏYİŞİKLİK
+            className="w-full h-full object-cover" 
+          />
         </div>
 
         {/* 2.3. Məlumat Hissəsi (Scroll ola bilən) */}
@@ -122,9 +125,6 @@ function ItemModal({ item, onClose }) {
             {item.ingredients ? item.ingredients.join(', ') : '...'}
           </p>
         </div>
-        
-        {/* "Add to Order" düyməsi və div-i tamamilə silinib */}
-
       </motion.div>
     </>
   );

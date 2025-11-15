@@ -1,33 +1,40 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React from 'react';
+import { motion } from 'framer-motion';
 
-const premiumShadow =
-  "0 10px 30px rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.1)";
-const premiumHoverShadow =
-  "0 15px 30px rgba(212, 175, 55, 0.15), 0 5px 15px rgba(0, 0, 0, 0.2)";
+// Kölgə dəyərləri
+const premiumShadow = '0 10px 30px rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.1)';
+const premiumHoverShadow = '0 15px 30px rgba(212, 175, 55, 0.15), 0 5px 15px rgba(0, 0, 0, 0.2)';
 
+// Kart variantları (stagger olmadıqda)
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, boxShadow: premiumShadow },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    boxShadow: premiumShadow
+  },
 };
 
-function MenuItemCard({ item, onClick, variants }) {
+function MenuItemCard({ item, onClick, variants }) { 
+
   const handleClick = () => {
+    // Haptik rəy
     if (window.navigator.vibrate) window.navigator.vibrate(30);
-    onClick();
+    onClick(); // Əsas 'onClick' funksiyasını çağır
   };
 
   return (
     <motion.div
-      variants={variants || cardVariants}
+      variants={variants || cardVariants} 
       onClick={handleClick}
       className="flex items-center space-x-4 bg-premium-black/50 p-4 rounded-xl cursor-pointer relative"
       whileHover={{ scale: 1.015, boxShadow: premiumHoverShadow, zIndex: 30 }}
-      transition={{ type: "spring", stiffness: 300 }}
+      transition={{ type: 'spring', stiffness: 300 }}
     >
       <img
         src={item.image}
         alt={item.name}
+        loading="lazy" // <--- PERFORMANS ÜÇÜN DƏYİŞİKLİK
         className="w-24 h-24 md:w-28 md:h-28 object-cover rounded-lg"
       />
       <div className="flex-1">
