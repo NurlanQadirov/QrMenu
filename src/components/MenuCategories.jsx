@@ -1,3 +1,4 @@
+// src/components/MenuCategories.jsx
 import React from 'react';
 import { motion } from 'framer-motion'; 
 
@@ -10,18 +11,24 @@ function MenuCategories({ categories, selectedCategory, onSelectCategory, mainCo
 
   return (
     <motion.div
-      initial={{ y: -100, opacity: 0 }}
+      initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ ease: "easeOut", duration: 0.5, delay: 0.3 }}
-      className="sticky top-20 z-20 bg-premium-black/80 backdrop-blur-lg"
+      // DƏYİŞİKLİK: 'sticky top-0 z-50 bg-premium-black' əlavə olundu
+      className="sticky top-0 z-50 bg-premium-black border-b border-gray-800 py-3 shadow-xl"
     >
-      <div className="flex space-x-4 overflow-x-auto p-4 md:p-6 hide-scrollbar max-w-5xl mx-auto">
+      {/* DƏYİŞİKLİK: 'md:justify-center' silindi */}
+      <div className="flex space-x-3 overflow-x-auto px-4 hide-scrollbar max-w-5xl mx-auto">
         {categories.map((category) => (
           <button
             key={category.key}
             onClick={() => handleSelect(category.key)}
-            className={`py-2 px-5 rounded-full whitespace-nowrap text-sm md:text-base font-medium transition-all duration-300 transform
-              ${selectedCategory === category.key ? 'bg-gold text-premium-black scale-105' : 'bg-gray-800/50 text-off-white/60 opacity-70 hover:opacity-100 hover:text-off-white'}
+            className={`py-2 px-5 rounded-full whitespace-nowrap text-sm font-medium transition-all duration-300 transform
+              ${
+                selectedCategory === category.key
+                  ? 'bg-gold text-premium-black scale-105 shadow-md font-bold'
+                  : 'bg-gray-900 text-gray-400 hover:bg-gray-800 hover:text-white border border-gray-800'
+              }
             `}
           >
             {category.name}
@@ -32,7 +39,7 @@ function MenuCategories({ categories, selectedCategory, onSelectCategory, mainCo
   );
 }
 
-// Scrollbar gizlətmək üçün
+// Scrollbar gizlətmək üçün CSS
 const style = document.createElement('style');
 style.innerHTML = `
   .hide-scrollbar::-webkit-scrollbar { display: none; }

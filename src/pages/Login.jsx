@@ -46,7 +46,7 @@ function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-black/40 border border-gray-700 rounded-lg p-3 text-white focus:border-gold focus:outline-none transition-colors"
-              placeholder="admin@snaphouse.com"
+              placeholder="admin@qrmenutest.com"
               required
             />
           </div>

@@ -16,7 +16,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 
-// --- DÜZƏLİŞ: Bu komponenti App-dan ÇÖLƏ çıxardıq ---
 const MenuPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -39,7 +38,11 @@ const MenuPage = () => {
       {!isLoading && (
         <>
           <Navbar />
-          <main ref={mainContentRef} className="flex-1 overflow-y-auto pt-20 scroll-smooth">
+          {/* DƏYİŞİKLİK: 'pt-20' əvəzinə 'mt-20' istifadə etdik */}
+          <main 
+            ref={mainContentRef} 
+            className="flex-1 overflow-y-auto mt-20 scroll-smooth bg-premium-black"
+          >
             <Menu onItemSelected={handleItemSelected} mainContentRef={mainContentRef} />
             <Footer />
           </main>
@@ -56,7 +59,6 @@ const MenuPage = () => {
     </div>
   );
 };
-// ----------------------------------------------------
 
 function App() {
   return (
