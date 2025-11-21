@@ -6,7 +6,7 @@ const IMG_URL = (id) => `https://picsum.photos/id/${id}/400/400`;
 // --- AZƏRBAYCAN DİLİ (SƏNİN TƏRCÜMƏLƏRİN) ---
 const azTranslations = {
   nav: { az: "AZ", en: "EN", ru: "RU" },
-  preloader: { title: "Snap House" },
+  preloader: { title: "Qr Menu" },
   specialsBanner: {
     title: "Şefin Seçimi",
     itemName: "Filet Mignon 'Snap'",

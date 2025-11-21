@@ -15,8 +15,7 @@ function MenuCategories({ categories, selectedCategory, onSelectCategory, mainCo
       transition={{ ease: "easeOut", duration: 0.5, delay: 0.3 }}
       className="sticky top-20 z-20 bg-premium-black/80 backdrop-blur-lg"
     >
-      {/* DƏYİŞİKLİK: 'md:justify-center' əlavə olundu */}
-      <div className="flex space-x-4 overflow-x-auto p-4 md:p-6 hide-scrollbar max-w-5xl mx-auto md:justify-center">
+      <div className="flex space-x-4 overflow-x-auto p-4 md:p-6 hide-scrollbar max-w-5xl mx-auto">
         {categories.map((category) => (
           <button
             key={category.key}

@@ -29,7 +29,7 @@ function Login() {
       <div className="w-full max-w-md bg-gray-900/80 p-8 rounded-2xl border border-gold/20 shadow-2xl backdrop-blur-sm">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-serif text-gold mb-2">Admin Giriş</h1>
-          <p className="text-off-white/60 text-sm">Snap House idarəetmə paneli</p>
+          <p className="text-off-white/60 text-sm">Qr Menu idarəetmə paneli</p>
         </div>
 
         {error && (

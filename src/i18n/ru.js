@@ -4,7 +4,7 @@ const IMG_URL = (id) => `https://picsum.photos/id/${id}/400/400`;
 
 const ruTranslations = {
   nav: { az: "AZ", en: "EN", ru: "RU" },
-  preloader: { title: "Snap House" },
+  preloader: { title: "Qr Menu" },
   specialsBanner: {
     title: "Выбор Шефа",
     itemName: "Филе-миньон 'Snap'",
