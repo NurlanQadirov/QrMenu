@@ -1,132 +1,122 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { X, Star, Clock } from 'lucide-react'; 
-import { useLanguage } from '../context/LanguageContext'; // Dil üçün import
+import { useLanguage } from '../context/LanguageContext';
 
-// --- Animasiya Variantları ---
-
-// Arxa fon (Bulanıqlıq)
+// Arxa fon (Qaranlıq)
 const backdropVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.3 } },
-  exit: { opacity: 0, transition: { duration: 0.3 } },
+  visible: { opacity: 1 },
 };
 
-// Mobil üçün modal (Aşağıdan yavaş açılma və bağlanma)
+// Modalın hərəkəti (Mobil: Aşağıdan, Desktop: Ortadan böyüyür)
 const modalVariants = {
-  hidden: { opacity: 0, y: "100%" },
+  hidden: { y: "100%", opacity: 0, scale: 0.9 },
   visible: { 
-    opacity: 1, 
     y: 0, 
-    transition: { type: 'spring', stiffness: 120, damping: 30 } 
-  },
-  exit: { 
-    opacity: 0, 
-    y: "100%",
-    transition: { type: 'spring', stiffness: 120, damping: 30 }
-  },
-};
-
-// Desktop üçün modal (Mərkəzdən yavaş açılma və bağlanma)
-const desktopModalVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { 
     opacity: 1, 
-    y: 0, 
-    transition: { type: 'spring', stiffness: 120, damping: 30 } 
+    scale: 1,
+    transition: { type: 'spring', damping: 25, stiffness: 300 } 
   },
-  exit: { 
-    opacity: 0, 
-    y: 50,
-    transition: { type: 'spring', stiffness: 120, damping: 30 }
-  },
+  exit: { y: "100%", opacity: 0, transition: { duration: 0.2 } }
 };
-
-// --- Komponent ---
 
 function ItemModal({ item, onClose }) {
-  const { texts } = useLanguage(); // Dili kontekstdən götürürük
-  const isMobile = window.innerWidth < 768;
+  const { texts } = useLanguage();
+  
+  // İnqredientləri düzgün göstərmək üçün yoxlama
+  const ingredientsList = Array.isArray(item.ingredients) 
+    ? item.ingredients.join(', ') 
+    : item.ingredients;
 
   return (
-    <>
-      {/* 1. Arxa Fon (Bulanıq) */}
+    <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center">
+      
+      {/* 1. Arxa Fon (Bulanıq və Qara) */}
       <motion.div
-        key="backdrop"
         variants={backdropVariants}
         initial="hidden"
         animate="visible"
-        exit="exit"
+        exit="hidden"
         onClick={onClose}
-        className="fixed inset-0 z-40 bg-black/50" 
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
       />
 
-      {/* 2. Modal Pəncərəsi */}
+      {/* 2. Modalın Özü */}
       <motion.div
-        key="modal"
-        variants={isMobile ? modalVariants : desktopModalVariants}
+        variants={modalVariants}
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="fixed z-50 bottom-0 left-0 right-0 h-[90vh] md:h-[85vh] md:w-[90vw] md:max-w-2xl md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 
-                   bg-gray-900/60 backdrop-blur-md border-t-2 md:border-2 border-gold/50 
-                   rounded-t-2xl md:rounded-2xl shadow-premium overflow-hidden flex flex-col"
+        // Mobil üçün aşağıdan çıxır, Desktop üçün ortada dayanır
+        className="relative w-full md:w-[500px] max-h-[90vh] bg-gray-900 rounded-t-3xl md:rounded-2xl overflow-hidden shadow-2xl border border-gray-800 flex flex-col"
       >
-        {/* --- Modalın Daxili Məzmunu --- */}
-
-        {/* 2.1. Bağlama Düyməsi */}
-        <button 
-          onClick={onClose}
-          className="absolute top-3 right-3 z-10 p-2 bg-white/10 rounded-full"
-        >
-          <X size={20} className="text-white" />
-        </button>
-
-        {/* 2.2. Şəkil */}
-        <div className="h-60 md:h-80 w-full overflow-hidden">
+        
+        {/* Şəkil Hissəsi */}
+        <div className="relative h-64 md:h-72 flex-shrink-0">
           <img 
             src={item.image} 
             alt={item.name} 
-            loading="lazy" // <--- PERFORMANS ÜÇÜN DƏYİŞİKLİK
-            className="w-full h-full object-cover" 
+            className="w-full h-full object-cover"
           />
+          {/* Bağlama Düyməsi (Şəklin üzərində) */}
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition backdrop-blur-md"
+          >
+            <X size={20} />
+          </button>
+          
+          {/* Qradiyent (Yazı oxunsun deyə) */}
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-gray-900 to-transparent" />
         </div>
 
-        {/* 2.3. Məlumat Hissəsi (Scroll ola bilən) */}
-        <div className="flex-1 p-6 overflow-y-auto">
-          {/* Başlıq və Qiymət */}
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-3xl font-serif text-gold">{item.name}</h2>
-            <span className="text-2xl font-medium text-gold">{item.price}</span>
+        {/* Məlumat Hissəsi (Scroll olunan) */}
+        <div className="p-6 overflow-y-auto">
+          
+          <div className="flex justify-between items-start mb-2">
+            <h2 className="text-2xl md:text-3xl font-serif text-white leading-tight">
+              {item.name}
+            </h2>
+            <span className="text-xl font-bold text-gold whitespace-nowrap ml-4">
+              {item.price}
+            </span>
           </div>
 
-          {/* Təsvir */}
-          <p className="text-off-white/80 mb-6">{item.description}</p>
+          <p className="text-gray-400 text-sm leading-relaxed mb-6">
+            {item.description}
+          </p>
           
-          {/* Əlavə Məlumatlar (Dildən gəlir) */}
-          <div className="flex space-x-6 mb-6">
+          {/* Detallar (Vaxt və Tövsiyə) */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800 rounded-lg text-xs text-gray-300 border border-gray-700">
+              <Clock size={14} className="text-gold" />
+              <span>{item.prepTime}</span>
+            </div>
+            
             {item.isRecommended && (
-              <div className="flex items-center text-off-white/70">
-                <Star size={18} className="text-gold mr-2" />
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-gold/10 rounded-lg text-xs text-gold border border-gold/20">
+                <Star size={14} className="fill-gold" />
                 <span>{texts.modal.chefPick}</span>
               </div>
             )}
-            <div className="flex items-center text-off-white/70">
-              <Clock size={18} className="text-gold mr-2" />
-              <span>{item.prepTime}</span>
-            </div>
           </div>
 
-          {/* Tərkib (Dildən gəlir) */}
-          <h4 className="text-lg font-serif text-white mb-2">
-            {texts.modal.ingredients}
-          </h4>
-          <p className="text-off-white/70">
-            {item.ingredients ? item.ingredients.join(', ') : '...'}
-          </p>
+          {/* Tərkib */}
+          {ingredientsList && (
+            <div className="border-t border-gray-800 pt-4">
+              <h4 className="text-sm font-bold text-white mb-2 uppercase tracking-wider">
+                {texts.modal.ingredients}
+              </h4>
+              <p className="text-sm text-gray-400">
+                {ingredientsList}
+              </p>
+            </div>
+          )}
+
         </div>
       </motion.div>
-    </>
+    </div>
   );
 }
 
