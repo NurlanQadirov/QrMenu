@@ -3,4 +3,16 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    // JS faylını kiçik hissələrə bölmək üçün ayarlar
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'firebase-vendor': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+          'ui-vendor': ['framer-motion', 'lucide-react', 'react-confetti']
+        }
+      }
+    }
+  }
 });
