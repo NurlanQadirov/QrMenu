@@ -42,6 +42,8 @@ function SpecialsBanner({ item, onClick }) {
          <img 
             src={item.image} 
             alt={item.name}
+            loading="eager" // Dəyişiklik: lazy yox, eager
+   fetchPriority="high" // Dəyişiklik: Yüksək prioritet
             className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-full border-2 border-gold shadow-lg mr-6 flex-shrink-0 bg-black"
          />
 
