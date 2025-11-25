@@ -1,5 +1,7 @@
-// src/components/Menu.jsx (TAM VERSİYA)
+// src/components/Menu.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Yönləndirmə üçün
+import { Gamepad2 } from 'lucide-react'; // Oyun ikonu
 import { useLanguage } from '../context/LanguageContext';
 import MenuCategories from './MenuCategories';
 import SpecialsBanner from './SpecialsBanner';
@@ -8,6 +10,7 @@ import Searchbar from './Searchbar';
 import { db } from '../firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
+// Yükləmə Skleti (Loading)
 function MenuLoadingSkeleton() {
   return (
     <div className="p-4 max-w-6xl mx-auto animate-pulse space-y-6">
@@ -24,6 +27,7 @@ function MenuLoadingSkeleton() {
 
 function Menu({ onItemSelected, mainContentRef }) {
   const { language } = useLanguage();
+  const navigate = useNavigate(); // Səhifəni dəyişmək üçün
   
   const [categories, setCategories] = useState([]);
   const [menuData, setMenuData] = useState({});
@@ -33,11 +37,12 @@ function Menu({ onItemSelected, mainContentRef }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Firebase-dən məlumatları çəkmək
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // 1. Kateqoriyalar
+        // 1. Kateqoriyaları gətir (sıraya görə)
         const catsRef = collection(db, "categories");
         const q = query(catsRef, orderBy("order"));
         const catSnapshot = await getDocs(q);
@@ -52,7 +57,7 @@ function Menu({ onItemSelected, mainContentRef }) {
         });
         setCategories(loadedCats);
 
-        // 2. Məhsullar
+        // 2. Məhsulları gətir
         const itemsRef = collection(db, "menuItems");
         const itemsSnapshot = await getDocs(itemsRef);
         
@@ -77,15 +82,14 @@ function Menu({ onItemSelected, mainContentRef }) {
           if (!loadedMenuData[catKey]) loadedMenuData[catKey] = [];
           loadedMenuData[catKey].push(formattedItem);
 
+          // Şefin seçimi (ilk tapılan tövsiyəli məhsul)
           if (formattedItem.isRecommended && !loadedSpecialItem) {
             loadedSpecialItem = formattedItem;
           }
         });
 
         setMenuData(loadedMenuData);
-        // Əgər 'isRecommended' yoxdursa, ilk məhsulu götürmə (Banner pis görünürsə)
-        // Yalnız həqiqətən 'Şefin Seçimi' varsa göstər
-        setSpecialItem(loadedSpecialItem); 
+        setSpecialItem(loadedSpecialItem);
 
         if (loadedCats.length > 0) setSelectedCategory(loadedCats[0].key);
 
@@ -102,6 +106,7 @@ function Menu({ onItemSelected, mainContentRef }) {
   const handleSelectCategory = (categoryKey) => {
     setSelectedCategory(categoryKey);
     setSearchTerm('');
+    
     // Kateqoriya seçəndə biraz aşağı sürüşdür ki, header görünməsin
     const yOffset = -140; 
     const element = document.getElementById('menu-grid-start');
@@ -115,9 +120,9 @@ function Menu({ onItemSelected, mainContentRef }) {
   if (categories.length === 0) return <div className="text-center p-10 text-white">Məlumat yoxdur.</div>;
 
   return (
-    <section id="menu" className="pb-16 max-w-6xl mx-auto min-h-screen">
+    <section id="menu" className="pb-16 max-w-6xl mx-auto min-h-screen relative">
       
-      {/* 1. AXTARIŞ (ƏN ÜSTDƏ) - Padding ilə ayrılıb */}
+      {/* 1. AXTARIŞ (ƏN ÜSTDƏ) */}
       <div className="pt-6 px-4">
         <Searchbar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       </div>
@@ -150,6 +155,16 @@ function Menu({ onItemSelected, mainContentRef }) {
           onItemSelected={onItemSelected}
         />
       </div>
+
+      {/* --- YENİ: ÜZƏN OYUN DÜYMƏSİ (FLOATING BUTTON) --- */}
+      <button
+        onClick={() => navigate('/fun')}
+        className="fixed bottom-24 right-6 z-40 w-14 h-14 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full shadow-lg flex items-center justify-center animate-bounce hover:scale-110 transition border-2 border-white/20"
+        style={{ animationDuration: '2s' }}
+      >
+        <Gamepad2 size={28} />
+      </button>
+
     </section>
   );
 }

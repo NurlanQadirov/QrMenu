@@ -15,6 +15,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 // Səhifələr
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
+import FunZone from "./pages/FunZone";
 
 const MenuPage = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -74,6 +75,7 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route path="/fun" element={<FunZone />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
