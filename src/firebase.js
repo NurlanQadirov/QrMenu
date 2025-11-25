@@ -5,16 +5,14 @@ import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCFjVfz8pn7GURtXMusjQl-1Nj1pK0GRns",
-  authDomain: "qrmenu-184f5.firebaseapp.com",
-  projectId: "qrmenu-184f5",
-  storageBucket: "qrmenu-184f5.firebasestorage.app",
-  messagingSenderId: "613402777726",
-  appId: "1:613402777726:web:a39562b7784a947792a02f"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-
-// Bu sətirləri əlavə etməyi unutmayın:
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);

@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { auth, db, storage } from '../firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, setDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { useNavigate } from 'react-router-dom';
 import { Trash2, Plus, LogOut, X, Edit, Image as ImageIcon, Check, ArrowLeft, Layers } from 'lucide-react';
+
 
 function Admin() {
   const navigate = useNavigate();
@@ -173,12 +174,30 @@ function Admin() {
     } catch (err) { alert("Xəta: " + err.message); }
   };
 
-  const deleteProduct = async (id) => {
-    if (window.confirm("Silmək istədiyinizə əminsiniz?")) {
-      await deleteDoc(doc(db, "menuItems", id));
-      setProducts(products.filter(p => p.id !== id));
+  const deleteProduct = async (item) => {
+  if (window.confirm("Silmək istədiyinizə əminsiniz?")) {
+    try {
+      // 1. Əgər şəkli varsa və bu şəkil Firebase Storage-dədirsə, onu sil
+      if (item.image && item.image.includes("firebasestorage")) {
+         // URL-dən referans yaradırıq
+         const imageRef = ref(storage, item.image);
+         await deleteObject(imageRef).catch(err => {
+             console.log("Şəkil silinərkən xəta oldu və ya şəkil artıq yoxdur:", err);
+         });
+      }
+
+      // 2. Firestore-dan məlumatı sil
+      await deleteDoc(doc(db, "menuItems", item.id));
+
+      // 3. Siyahını yenilə
+      setProducts(products.filter(p => p.id !== item.id));
+
+    } catch (error) {
+      console.error("Silinmə xətası:", error);
+      alert("Xəta baş verdi: " + error.message);
     }
-  };
+  }
+};
 
   if (loading) return <div className="min-h-screen bg-premium-black flex items-center justify-center text-gold">Yüklənir...</div>;
 
@@ -246,7 +265,7 @@ function Admin() {
                           <p className="text-gold font-bold mt-1">{item.price}</p>
                           <div className="flex justify-end gap-2 mt-2">
                              <button onClick={() => openProdModal(item)} className="p-1.5 bg-blue-500/10 text-blue-400 rounded"><Edit size={16}/></button>
-                             <button onClick={() => deleteProduct(item.id)} className="p-1.5 bg-red-500/10 text-red-400 rounded"><Trash2 size={16}/></button>
+                             <button onClick={() => deleteProduct(item)} className="p-1.5 bg-red-500/10 text-red-400 rounded"><Trash2 size={16}/></button>
                           </div>
                        </div>
                     </div>
