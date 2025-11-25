@@ -9,7 +9,7 @@ const bannerVariants = {
   visible: { 
     opacity: 1, 
     scale: 1,
-    transition: { type: 'spring', stiffness: 90, damping: 20, delay: 0.1 } // Delay azaldıldı
+    transition: { type: 'spring', stiffness: 90, damping: 20, delay: 0.2 }
   }
 };
 
@@ -26,7 +26,7 @@ function SpecialsBanner({ item, onClick }) {
       onClick={onClick}
       className="relative mx-4 md:mx-auto max-w-4xl h-40 md:h-52 rounded-2xl overflow-hidden cursor-pointer group shadow-premium border border-gold/20"
     >
-      {/* Arxa fon şəkli (Bulanıq) */}
+      {/* Arxa fon şəkli */}
       <div 
         className="absolute inset-0 bg-cover bg-center blur-sm opacity-50 scale-110"
         style={{ backgroundImage: `url(${item.image})` }}
@@ -37,14 +37,10 @@ function SpecialsBanner({ item, onClick }) {
       
       {/* Məzmun */}
       <div className="absolute inset-0 flex items-center px-6 md:px-10">
-         {/* Orijinal Şəkil - OPTİMALLAŞDIRILMIŞ HİSSƏ */}
+         {/* Orijinal Şəkil - Əvvəlki sadə halı */}
          <img 
             src={item.image} 
             alt={item.name}
-            // 'eager' = Gözləmədən yüklə
-            // 'high' = Yüksək prioritet ver
-            loading="eager"
-            fetchPriority="high"
             className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-full border-2 border-gold shadow-lg mr-6 flex-shrink-0 bg-black"
          />
 
