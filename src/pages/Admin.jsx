@@ -1,21 +1,30 @@
-// src/pages/Admin.jsx
+// src/pages/Admin.jsx (BANNER TƏNZİMLƏMƏSİ İLƏ)
 import React, { useState, useEffect } from 'react';
 import { auth, db, storage } from '../firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, setDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc, setDoc, getDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Plus, LogOut, X, Edit, Image as ImageIcon, Check, ArrowLeft, Layers } from 'lucide-react';
-
+import { Trash2, Plus, LogOut, X, Edit, Image as ImageIcon, Check, ArrowLeft, Layers, LayoutTemplate } from 'lucide-react';
 
 function Admin() {
   const navigate = useNavigate();
   
+  // Views: 'categories', 'products', 'banner'
   const [view, setView] = useState('categories'); 
   const [selectedCategory, setSelectedCategory] = useState(null); 
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Banner State
+  const [bannerForm, setBannerForm] = useState({
+    title: '',
+    price: '',
+    image: ''
+  });
+  const [bannerLoading, setBannerLoading] = useState(false);
 
   // Modallar
   const [isProdModalOpen, setIsProdModalOpen] = useState(false);
@@ -37,11 +46,13 @@ function Admin() {
     name: { az: '', en: '', ru: '' }
   });
 
-  useEffect(() => { fetchData(); }, []);
-
-  useEffect(() => {
+  useEffect(() => { 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) navigate('/login');
+      else {
+        fetchData();
+        fetchBanner();
+      }
     });
     return () => unsubscribe();
   }, [navigate]);
@@ -63,7 +74,48 @@ function Admin() {
     }
   };
 
-  // --- ŞƏKİL YÜKLƏMƏ ---
+  const fetchBanner = async () => {
+    try {
+      const docSnap = await getDoc(doc(db, "settings", "banner"));
+      if (docSnap.exists()) {
+        setBannerForm(docSnap.data());
+      }
+    } catch (error) {
+      console.error("Banner error:", error);
+    }
+  };
+
+  // --- BANNER ƏMƏLİYYATLARI ---
+  const handleBannerImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setBannerLoading(true);
+    try {
+      const storageRef = ref(storage, `banner/${Date.now()}-${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(snapshot.ref);
+      setBannerForm({ ...bannerForm, image: url });
+    } catch (error) {
+      alert("Şəkil yükləmə xətası (Linkdən istifadə edin)");
+    } finally {
+      setBannerLoading(false);
+    }
+  };
+
+  const saveBanner = async (e) => {
+    e.preventDefault();
+    setBannerLoading(true);
+    try {
+      await setDoc(doc(db, "settings", "banner"), bannerForm);
+      alert("Banner yeniləndi!");
+    } catch (error) {
+      alert("Xəta: " + error.message);
+    } finally {
+      setBannerLoading(false);
+    }
+  };
+
+  // --- ŞƏKİL YÜKLƏMƏ (MƏHSUL ÜÇÜN) ---
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -97,19 +149,16 @@ function Admin() {
     let catKey = editingItem ? editingItem.key : catForm.key;
     
     if (!catKey) {
-      if (!catForm.name.en) return alert("Açar söz üçün İngiliscə ad mütləqdir!");
+      if (!catForm.name.en) return alert("İngiliscə ad mütləqdir (Key üçün)!");
       catKey = catForm.name.en.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     }
 
-    // --- YENİ: SIRA NÖMRƏSİ YOXLANIŞI ---
     const orderNum = Number(catForm.order);
     const isDuplicate = categories.some(c => c.order === orderNum && c.key !== catKey);
-    
     if (isDuplicate) {
-      alert(`Diqqət: ${orderNum} nömrəli sıra artıq istifadə olunur! Zəhmət olmasa başqa rəqəm yazın.`);
-      return; // Yadda saxlamır, dayandırır
+      alert(`Diqqət: ${orderNum} nömrəli sıra artıq mövcuddur!`);
+      return;
     }
-    // -------------------------------------
 
     try {
       await setDoc(doc(db, "categories", catKey), { ...catForm, key: catKey, order: orderNum });
@@ -119,7 +168,7 @@ function Admin() {
   };
 
   const deleteCategory = async (key) => {
-    if (window.confirm("Diqqət! Bu kateqoriyanı silsəniz, içindəki məhsullar kateqoriyasız qalacaq.")) {
+    if (window.confirm("Bu kateqoriyanı silsəniz, məhsullar kateqoriyasız qala bilər. Əminsiniz?")) {
       await deleteDoc(doc(db, "categories", key));
       setCategories(categories.filter(c => c.key !== key));
     }
@@ -174,30 +223,12 @@ function Admin() {
     } catch (err) { alert("Xəta: " + err.message); }
   };
 
-  const deleteProduct = async (item) => {
-  if (window.confirm("Silmək istədiyinizə əminsiniz?")) {
-    try {
-      // 1. Əgər şəkli varsa və bu şəkil Firebase Storage-dədirsə, onu sil
-      if (item.image && item.image.includes("firebasestorage")) {
-         // URL-dən referans yaradırıq
-         const imageRef = ref(storage, item.image);
-         await deleteObject(imageRef).catch(err => {
-             console.log("Şəkil silinərkən xəta oldu və ya şəkil artıq yoxdur:", err);
-         });
-      }
-
-      // 2. Firestore-dan məlumatı sil
-      await deleteDoc(doc(db, "menuItems", item.id));
-
-      // 3. Siyahını yenilə
-      setProducts(products.filter(p => p.id !== item.id));
-
-    } catch (error) {
-      console.error("Silinmə xətası:", error);
-      alert("Xəta baş verdi: " + error.message);
+  const deleteProduct = async (id) => {
+    if (window.confirm("Silmək istədiyinizə əminsiniz?")) {
+      await deleteDoc(doc(db, "menuItems", id));
+      setProducts(products.filter(p => p.id !== id));
     }
-  }
-};
+  };
 
   if (loading) return <div className="min-h-screen bg-premium-black flex items-center justify-center text-gold">Yüklənir...</div>;
 
@@ -208,17 +239,25 @@ function Admin() {
   return (
     <div className="min-h-screen bg-premium-black text-off-white pb-20">
       <div className="bg-gray-900 border-b border-gray-800 p-4 sticky top-0 z-20 shadow-lg">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <h1 className="text-xl font-serif text-gold flex items-center gap-2">Admin Panel</h1>
-          <div className="flex gap-3">
-            <button onClick={() => { setView('categories'); setSelectedCategory(null); }} className={`px-4 py-2 rounded-lg text-sm font-bold ${view === 'categories' ? 'bg-gold text-black' : 'bg-gray-800 text-gray-400'}`}>Kateqoriyalar</button>
-            <button onClick={() => { setView('allProducts'); setSelectedCategory(null); }} className={`px-4 py-2 rounded-lg text-sm font-bold ${view === 'allProducts' ? 'bg-gold text-black' : 'bg-gray-800 text-gray-400'}`}>Bütün Məhsullar</button>
-            <button onClick={() => { signOut(auth); navigate('/login'); }} className="bg-red-900/30 text-red-400 p-2 rounded-lg"><LogOut size={20}/></button>
+          
+          {/* TABS */}
+          <div className="flex bg-black rounded-lg p-1">
+            <button onClick={() => { setView('categories'); setSelectedCategory(null); }} className={`px-3 py-2 rounded-lg text-xs md:text-sm font-bold transition ${view === 'categories' ? 'bg-gold text-black' : 'text-gray-400 hover:text-white'}`}>Kateqoriyalar</button>
+            <button onClick={() => { setView('allProducts'); setSelectedCategory(null); }} className={`px-3 py-2 rounded-lg text-xs md:text-sm font-bold transition ${view === 'allProducts' ? 'bg-gold text-black' : 'text-gray-400 hover:text-white'}`}>Məhsullar</button>
+            <button onClick={() => { setView('banner'); setSelectedCategory(null); }} className={`px-3 py-2 rounded-lg text-xs md:text-sm font-bold flex items-center gap-2 transition ${view === 'banner' ? 'bg-gold text-black' : 'text-gray-400 hover:text-white'}`}>
+               <LayoutTemplate size={16}/> Banner
+            </button>
           </div>
+
+          <button onClick={() => { signOut(auth); navigate('/login'); }} className="bg-red-900/30 text-red-400 p-2 rounded-lg self-end md:self-auto"><LogOut size={20}/></button>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto p-4 md:p-6">
+        
+        {/* 1. KATEQORİYALAR */}
         {view === 'categories' && !selectedCategory && (
            <div>
               <div className="flex justify-between items-center mb-6">
@@ -242,6 +281,7 @@ function Admin() {
            </div>
         )}
 
+        {/* 2. MƏHSULLAR */}
         {(selectedCategory || view === 'allProducts') && (
            <div>
               <div className="flex items-center gap-4 mb-6">
@@ -265,7 +305,7 @@ function Admin() {
                           <p className="text-gold font-bold mt-1">{item.price}</p>
                           <div className="flex justify-end gap-2 mt-2">
                              <button onClick={() => openProdModal(item)} className="p-1.5 bg-blue-500/10 text-blue-400 rounded"><Edit size={16}/></button>
-                             <button onClick={() => deleteProduct(item)} className="p-1.5 bg-red-500/10 text-red-400 rounded"><Trash2 size={16}/></button>
+                             <button onClick={() => deleteProduct(item.id)} className="p-1.5 bg-red-500/10 text-red-400 rounded"><Trash2 size={16}/></button>
                           </div>
                        </div>
                     </div>
@@ -274,8 +314,56 @@ function Admin() {
               {visibleProducts.length === 0 && <p className="text-center text-gray-500 mt-10">Məhsul yoxdur.</p>}
            </div>
         )}
+
+        {/* 3. BANNER AYARLARI */}
+        {view === 'banner' && (
+            <div className="max-w-2xl mx-auto">
+               <h2 className="text-2xl text-white font-bold mb-6 flex items-center gap-2"><LayoutTemplate/> Banner Tənzimləmələri</h2>
+               <div className="bg-gray-900 border border-gray-800 p-6 rounded-2xl space-y-6">
+                  
+                  {/* Mövcud Banner */}
+                  <div className="w-full h-48 bg-black rounded-xl overflow-hidden relative border border-gray-700">
+                     {bannerForm.image ? (
+                        <img src={bannerForm.image} alt="Banner" className="w-full h-full object-cover opacity-70" />
+                     ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-600">Şəkil Yoxdur</div>
+                     )}
+                     <div className="absolute bottom-4 left-4">
+                        <h3 className="text-2xl font-serif font-bold text-white">{bannerForm.title || "Başlıq"}</h3>
+                        <p className="text-gold font-bold">{bannerForm.price || "Qiymət"}</p>
+                     </div>
+                  </div>
+
+                  <form onSubmit={saveBanner} className="space-y-4">
+                     <div>
+                        <label className="text-xs text-gray-400 mb-1 block">Başlıq (Məs: Şefin Seçimi)</label>
+                        <input type="text" className="w-full bg-black border-gray-700 rounded-lg p-3 text-white outline-none focus:border-gold" value={bannerForm.title} onChange={e=>setBannerForm({...bannerForm, title: e.target.value})} />
+                     </div>
+                     <div>
+                        <label className="text-xs text-gray-400 mb-1 block">Alt Başlıq / Qiymət (Məs: 20 AZN)</label>
+                        <input type="text" className="w-full bg-black border-gray-700 rounded-lg p-3 text-white outline-none focus:border-gold" value={bannerForm.price} onChange={e=>setBannerForm({...bannerForm, price: e.target.value})} />
+                     </div>
+                     
+                     {/* Şəkil */}
+                     <div>
+                        <label className="text-xs text-gray-400 mb-1 block">Banner Şəkli</label>
+                        <div className="flex gap-2">
+                            <input type="file" className="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-black hover:file:bg-yellow-500" onChange={handleBannerImageUpload} />
+                            <input type="text" placeholder="və ya link" className="flex-1 bg-black border-gray-700 rounded-lg p-2 text-white outline-none focus:border-gold text-sm" value={bannerForm.image} onChange={e=>setBannerForm({...bannerForm, image: e.target.value})} />
+                        </div>
+                     </div>
+
+                     <button type="submit" disabled={bannerLoading} className="w-full bg-gold text-black font-bold py-3 rounded-xl hover:bg-yellow-500 mt-4 flex justify-center">
+                        {bannerLoading ? "Yüklənir..." : "Yadda Saxla"}
+                     </button>
+                  </form>
+               </div>
+            </div>
+        )}
+
       </div>
 
+      {/* MODALLAR (Məhsul və Kateqoriya modalları əvvəlki kimi qalır) */}
       {isCatModalOpen && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
            <div className="bg-gray-900 w-full max-w-md rounded-2xl border border-gray-700 p-6">

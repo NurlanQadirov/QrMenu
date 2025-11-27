@@ -14,10 +14,9 @@ function MenuCategories({ categories, selectedCategory, onSelectCategory, mainCo
       initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ ease: "easeOut", duration: 0.5, delay: 0.3 }}
-      // DƏYİŞİKLİK: 'sticky top-0 z-50 bg-premium-black' əlavə olundu
       className="sticky top-0 z-50 bg-premium-black border-b border-gray-800 py-3 shadow-xl"
     >
-      {/* DƏYİŞİKLİK: 'md:justify-center' silindi */}
+      <div className="flex space-x-3 overflow-x-auto px-4 hide-scrollbar max-w-5xl mx-auto touch-pan-x"></div>
       <div className="flex space-x-3 overflow-x-auto px-4 hide-scrollbar max-w-5xl mx-auto">
         {categories.map((category) => (
           <button
