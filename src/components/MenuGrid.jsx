@@ -43,6 +43,7 @@ function MenuGrid({ menuData, selectedCategory, searchTerm, onItemSelected }) {
         <MenuItemCard
           key={item.id}
           item={item}
+          index={index}
           variants={itemCardVariants} 
           onClick={() => onItemSelected(item)}
         />

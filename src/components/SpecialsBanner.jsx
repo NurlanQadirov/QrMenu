@@ -30,6 +30,7 @@ function SpecialsBanner({ item, onClick }) {
         alt={item.name} 
         loading="eager" 
         fetchPriority="high"
+        decoding="sync"
         className="absolute inset-0 w-full h-full object-cover"
       />
       
