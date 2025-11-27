@@ -13,20 +13,17 @@ import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import FunZone from "./pages/FunZone"; 
 
-// Preloader importunu sildik
 
 const MenuPage = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const mainContentRef = useRef(null);
 
-  // Loading state və useEffect (timer) TAMAMİLƏ SİLİNDİ
 
   const handleItemSelected = (item) => setSelectedItem(item);
   const handleCloseModal = () => setSelectedItem(null);
 
   return (
     <div className="relative bg-premium-black overflow-hidden h-screen flex flex-col">
-      {/* Navbar artıq birbaşa görünür */}
       <Navbar />
       
       <main 

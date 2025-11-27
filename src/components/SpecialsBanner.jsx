@@ -28,6 +28,8 @@ function SpecialsBanner({ item, onClick }) {
       <img 
         src={item.image} 
         alt={item.name} 
+        loading="eager" 
+        fetchPriority="high"
         className="absolute inset-0 w-full h-full object-cover"
       />
       
