@@ -33,17 +33,17 @@ function MenuGrid({ menuData, selectedCategory, searchTerm, onItemSelected }) {
   return (
     <motion.div
       layout
-      // DƏYİŞİKLİK: 'lg:grid-cols-3' əlavə olundu
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 p-4 md:p-0"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      {filteredItems.map((item) => (
+      {/* DÜZƏLİŞ: (item, index) əlavə olundu */}
+      {filteredItems.map((item, index) => (
         <MenuItemCard
           key={item.id}
           item={item}
-          index={index}
+          index={index} // Artıq index mövcuddur və xəta verməyəcək
           variants={itemCardVariants} 
           onClick={() => onItemSelected(item)}
         />

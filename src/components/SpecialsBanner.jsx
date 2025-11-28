@@ -1,4 +1,3 @@
-// src/components/SpecialsBanner.jsx
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
@@ -22,14 +21,15 @@ function SpecialsBanner({ item, onClick }) {
       initial="hidden"
       animate="visible"
       onClick={onClick}
-      className="relative mx-4 md:mx-auto max-w-4xl h-48 md:h-64 rounded-3xl overflow-hidden cursor-pointer group shadow-2xl border border-gold/20"
+      className="relative mx-4 md:mx-auto max-w-4xl h-48 md:h-64 rounded-3xl overflow-hidden cursor-pointer group shadow-2xl border border-gold/20 bg-gray-900"
     >
       {/* Arxa Fon Şəkli */}
       <img 
         src={item.image} 
         alt={item.name} 
+        // DÜZƏLİŞ: 'fetchpriority' kiçik hərflə yazıldı
         loading="eager" 
-        fetchPriority="high"
+        fetchpriority="high"
         decoding="sync"
         className="absolute inset-0 w-full h-full object-cover"
       />
