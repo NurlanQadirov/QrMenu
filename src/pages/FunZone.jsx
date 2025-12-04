@@ -32,27 +32,41 @@ function FunZone() {
     setNames(names.filter(n => n !== nameToRemove));
   };
 
-  const handleSpin = () => {
+ const handleSpin = () => {
     if (names.length < 2) return alert("Ən azı 2 ad daxil edin!");
 
     setIsSpinning(true);
     setWinner(null);
     setShowConfetti(false);
 
-    const winnerIndex = Math.floor(Math.random() * names.length);
-    const winnerName = names[winnerIndex];
-
-    // Hesablama (Qalibi oxun altına gətirmək)
-    const sliceAngle = 360 / names.length;
-    const fullSpins = 360 * 5; 
-    const targetRotation = fullSpins + (360 - (winnerIndex * sliceAngle)) - (sliceAngle / 2);
+    // 1. Təsadüfi bucaq (minimum 5 tam dövrə + təsadüfi hissə)
+    const randomDegree = Math.floor(Math.random() * 360) + (360 * 5);
     
-    const finalRotation = rotation + targetRotation;
-    setRotation(finalRotation);
+    // Yığılan rotasiya (çarx geriyə yox, həmişə irəli fırlansın)
+    const newRotation = rotation + randomDegree;
+    setRotation(newRotation);
 
     setTimeout(() => {
       setIsSpinning(false);
-      setWinner(winnerName);
+      
+      const sliceAngle = 360 / names.length;
+      
+      // DÜZƏLİŞ EDİLDİ:
+      // Çarx saat əqrəbi (clockwise) fırlanır.
+      // Ox yuxarıda (0 dərəcədə) sabitdir.
+      // Biz tapmalıyıq ki, 0 dərəcəyə çarxın hansı hissəsi gəlib çatıb.
+      // Düstur: (360 - (Fırlanma % 360)) % 360
+      
+      const normalizedRotation = newRotation % 360; // 0-360 arasına salırıq
+      const pointerAngle = (360 - normalizedRotation) % 360; // Oxun altındakı bucağı tapırıq
+      
+      // Həmin bucağın hansı indeksə düşdüyünü hesablayırıq
+      const winningIndex = Math.floor(pointerAngle / sliceAngle);
+      
+      // İndeksi array daxilində saxlayırıq (ehtiyat üçün)
+      const finalIndex = winningIndex >= names.length ? 0 : winningIndex;
+
+      setWinner(names[finalIndex]);
       setShowConfetti(true);
     }, 4000);
   };

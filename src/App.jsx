@@ -3,20 +3,23 @@ import React, { useState, useRef, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
-// Əsas Komponentlər (Dərhal yüklənsin)
+// Əsas Komponentlər
 import Navbar from "./components/Navbar";
-import Menu from "./components/Menu";
+import Menu from "./components/Menu"; // Bu komponent artıq '/menu' səhifəsində olacaq
 import Footer from "./components/Footer";
 import ItemModal from "./components/ItemModal";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// Səhifələri "Tənbəl" yükləyirik (Performans artımı üçün)
-// Müştəri menyunu açanda Admin və FunZone kodları yüklənməyəcək
+// Yeni Səhifə (Dərhal yüklənir)
+import Welcome from "./pages/Welcome"; 
+
+// Lazy Load olunanlar
 const Login = React.lazy(() => import("./pages/Login"));
 const Admin = React.lazy(() => import("./pages/Admin"));
 const FunZone = React.lazy(() => import("./pages/FunZone"));
 
+// Menyu Səhifəsi (Köhnə App-in içindəki məzmun)
 const MenuPage = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const mainContentRef = useRef(null);
@@ -32,6 +35,7 @@ const MenuPage = () => {
         ref={mainContentRef} 
         className="flex-1 overflow-y-auto mt-20 scroll-smooth bg-premium-black min-h-screen"
       >
+        {/* Menyu burada yüklənir */}
         <Menu onItemSelected={handleItemSelected} mainContentRef={mainContentRef} />
         <Footer />
       </main>
@@ -47,7 +51,6 @@ const MenuPage = () => {
   );
 };
 
-// Lazy yüklənən səhifələr üçün sadə loader
 const PageLoader = () => (
   <div className="min-h-screen bg-premium-black flex items-center justify-center text-gold">
     Yüklənir...
@@ -58,10 +61,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Ana Səhifə (Birbaşa yüklənir) */}
-        <Route path="/" element={<MenuPage />} />
+        {/* 1. Ana Səhifə artıq "Welcome" səhifəsidir */}
+        <Route path="/" element={<Welcome />} />
         
-        {/* Digər səhifələr (Gecikdirilmiş yükləmə) */}
+        {/* 2. Menyu düyməsinə basanda bura gələcək */}
+        <Route path="/menu" element={<MenuPage />} />
+        
         <Route 
           path="/login" 
           element={
